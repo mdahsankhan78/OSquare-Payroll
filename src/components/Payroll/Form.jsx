@@ -21,7 +21,7 @@ const Form = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log(data);
-        navigate('/payroll/employees');
+        navigate('/payroll', { state: data });
     };
 
     return (

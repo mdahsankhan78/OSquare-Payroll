@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import Payroll from "./components/Payroll"
+import Payrolls from "./components/Payrolls"
 import Employees from "./components/Employees"
 import Leaves from "./components/Leaves"
 import Header from "./components/Header"
 import Navbar from "./components/Navbar"
+import Payroll from "./components/Payroll"
 
 function App() {
 
@@ -13,7 +14,9 @@ function App() {
         <Header/>
         <Navbar/>
         <Routes>
-          <Route path="/" element={<Payroll />} />
+          <Route path="/" element={<Payrolls />} />
+          <Route path="/payroll" element={<Payroll/>} />
+          <Route path="/payroll/employees" element={<Employees />} />
           <Route path="/payroll/employees" element={<Employees />} />
           <Route path="/payroll/leaves/:selectedEmployees" element={<Leaves />} />
         </Routes>
