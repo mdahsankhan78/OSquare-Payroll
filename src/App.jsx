@@ -18,7 +18,7 @@ function App() {
           <Route path="/payroll" element={<Payroll/>} />
           <Route path="/payroll/employees" element={<Employees />} />
           <Route path="/payroll/employees" element={<Employees />} />
-          <Route path="/payroll/leaves/:selectedEmployees" element={<Leaves />} />
+          <Route path="/payroll/leaves" element={<Leaves />} />
         </Routes>
       </Router>
     </>

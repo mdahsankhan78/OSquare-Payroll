@@ -9,6 +9,8 @@ import { Input } from "./../ui/input"
 import { Label } from "./../ui/label"
 import { Button } from "./../ui/button"
 import { Link, useNavigate } from 'react-router-dom'
+import { apiUrls } from '../../api/apiurls'
+import axios from 'axios'
 
 const Form = () => {
     const [data, setData] = useState({ name: '', station: '', from: '', to: '' })
@@ -17,13 +19,25 @@ const Form = () => {
     const handleInput = (e) => {
         setData({ ...data, [e.target.name]: e.target.value });
     };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(data);
-        navigate('/payroll', { state: data });
-    };
+        await axios.post(apiUrls.payrollMaster,data)
+            .then(res => {
+                console.log(res.data.result)
+                if(res)
+                {
+                    localStorage.setItem('payrollId', res.data.result.id)
+                    localStorage.setItem('startDate', data.from)
+                    localStorage.setItem('endDate', data.to)
+                    
+                }
+                navigate('/payroll', { state: data });
+            })
+            .catch(err => console.log(err));
 
+
+    };
+    
     return (
         <form onSubmit={handleSubmit}>
             <DialogHeader>

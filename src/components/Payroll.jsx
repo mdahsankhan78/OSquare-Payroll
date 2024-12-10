@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { format } from "date-fns";
+
 import {
     Table,
     TableBody,
@@ -9,6 +11,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from './ui/button';
+import axios from 'axios';
+import { apiUrls } from '../api/apiurls';
 
 // Function to get all days between two dates
 const getDaysInRange = (startDate, endDate) => {
@@ -35,8 +39,12 @@ const getDayName = (date) => {
 };
 
 const Payroll = () => {
+    const [WorkingDates, setWorkingDates] = useState([]);
+    const apiUrl = apiUrls.addWorkingDatesRange;
     const location = useLocation();
     const payrollData = location.state;
+    const payrollMasterId = localStorage.getItem('payrollId');
+    const navigate = useNavigate();
 
     // Extract from and to dates from payrollData
     const { from, to } = payrollData;
@@ -48,11 +56,39 @@ const Payroll = () => {
         daysInRange.map(date => getDayName(date) !== "Sunday")
     );
 
-    // Function to handle checkbox change
+
+    //Code for Adding range Dates in Database
+    useEffect(() => {
+        const initialWorkingDates = daysInRange.reduce((acc, date, index) => {
+            const formattedDate = date.toISOString();
+            if (checkboxState[index]) {
+                acc.push({ date: formattedDate, payrollMasterId });
+            }
+            return acc;
+        }, []);
+        setWorkingDates(initialWorkingDates);
+    }, []);
+
     const handleCheckboxChange = (index) => {
         const newCheckboxState = [...checkboxState];
         newCheckboxState[index] = !newCheckboxState[index];
         setCheckboxState(newCheckboxState);
+
+        const updatedWorkingDates = [...WorkingDates];
+        const date = formatDate(daysInRange[index]);
+
+        if (newCheckboxState[index]) {
+            updatedWorkingDates.push({
+                PayrollMasterId: PayrollMasterId,
+                Date: date,
+            });
+        } else {
+            const dateIndex = updatedWorkingDates.findIndex(item => item.Date === date);
+            if (dateIndex !== -1) {
+                updatedWorkingDates.splice(dateIndex, 1);
+            }
+        }
+        setWorkingDates(updatedWorkingDates);
     };
 
     // Calculate totals
@@ -62,8 +98,19 @@ const Payroll = () => {
     ).length;
     const totalHours = totalDays * 8; // 8 hours per working day
 
+    const AddWorkingDates = async (e) => {
+        e.preventDefault();
+        await axios.post(apiUrl, WorkingDates)
+            .then(res => {
+                console.log(res)
+                localStorage.setItem('totalHours', totalHours);
+                navigate('/payroll/employees');
+            })
+            .catch(err => console.log(err))
+    }
+
     return (
-        <div className='p-10'>
+        <form onSubmit={AddWorkingDates} className='p-10'>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
                 <div className="rounded-lg border h-[60vh] overflow-y-auto">
                     <Table>
@@ -93,7 +140,7 @@ const Payroll = () => {
                 <div className="rounded-lg border h-[60vh] p-4 text-accent overflow-y-auto relative">
                     <h1 className='text-3xl'>{payrollData.name}</h1>
                     <h1 className='text-2xl'>{payrollData.station}</h1>
-                    <hr className='my-6' />
+                    <hr className='my-4' />
                     <div className="flex flex-col gap-y-4">
                         <h2 className='flex justify-between items-end'>
                             <span>Total Days</span>
@@ -109,8 +156,8 @@ const Payroll = () => {
                         </h2>
                     </div>
                     <div className="flex items-center gap-x-2 justify-end mt-4" >
-                        <Link to={'/'} className='bg-transparent border border-primary text-primary px-4 rounded-lg py-2 hover:text-primary'>Cancel</Link>
-                        <Link to={'/payroll/employees'} className='bg-primary text-white px-4 rounded-lg py-2 hover:text-white'>Proceed</Link>
+                        <Button to={'/'} className='bg-transparent border border-primary text-primary px-4 rounded-lg py-2 hover:text-primary'>Cancel</Button>
+                        <Button type='submit' className='bg-primary text-white px-4 rounded-lg py-2 hover:text-white'>Proceed</Button>
                     </div>
                 </div>
             </div>
@@ -121,7 +168,7 @@ const Payroll = () => {
                 }
                 `}
             </style>
-        </div>
+        </form>
     )
 }
 
