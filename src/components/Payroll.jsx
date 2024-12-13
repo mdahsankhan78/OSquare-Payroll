@@ -47,21 +47,20 @@ const Payroll = () => {
     const navigate = useNavigate();
 
     // Extract from and to dates from payrollData
-    const { from, to } = payrollData;
+    const { startDate, endDate } = payrollData;
 
     // Get all days in the range
-    const daysInRange = getDaysInRange(from, to);
+    const daysInRange = getDaysInRange(startDate, endDate);
 
     const [checkboxState, setCheckboxState] = useState(
         daysInRange.map(date => getDayName(date) !== "Sunday")
     );
 
 
-    //Code for Adding range Dates in Database
     useEffect(() => {
         const initialWorkingDates = daysInRange.reduce((acc, date, index) => {
             const formattedDate = date.toISOString();
-            if (checkboxState[index]) {
+            if (checkboxState[index] && getDayName(date) !== "Sunday") {
                 acc.push({ date: formattedDate, payrollMasterId });
             }
             return acc;
@@ -75,21 +74,24 @@ const Payroll = () => {
         setCheckboxState(newCheckboxState);
 
         const updatedWorkingDates = [...WorkingDates];
-        const date = formatDate(daysInRange[index]);
+        const date = daysInRange[index].toISOString();
 
         if (newCheckboxState[index]) {
+            // Add the date only if it's not Sunday
             updatedWorkingDates.push({
-                PayrollMasterId: PayrollMasterId,
                 Date: date,
+                PayrollMasterId: payrollMasterId,
             });
         } else {
-            const dateIndex = updatedWorkingDates.findIndex(item => item.Date === date);
+            // Remove the date if unchecked
+            const dateIndex = updatedWorkingDates.findIndex(item => item.date === date);
             if (dateIndex !== -1) {
                 updatedWorkingDates.splice(dateIndex, 1);
             }
         }
         setWorkingDates(updatedWorkingDates);
     };
+
 
     // Calculate totals
     const totalDays = checkboxState.filter((checked, index) => checked).length;
@@ -103,11 +105,16 @@ const Payroll = () => {
         await axios.post(apiUrl, WorkingDates)
             .then(res => {
                 console.log(res)
-                localStorage.setItem('totalHours', totalHours);
                 navigate('/payroll/employees');
+                localStorage.setItem('totalDays',totalDays);
+                localStorage.setItem('totalWorkingDays',totalWorkingDays);
+                localStorage.setItem('totalHours',totalHours);
             })
             .catch(err => console.log(err))
     }
+    
+    console.log(totalWorkingDays, totalDays, totalHours);
+    
 
     return (
         <form onSubmit={AddWorkingDates} className='p-10'>

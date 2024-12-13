@@ -12,7 +12,7 @@ const GetEmployees = ({ onDataFetched }) => {
                 onDataFetched(response.data.result);
 
             } catch (err) {
-                console.error('Error fetching Payroll Master data:', err);
+                console.error('Error fetching Employees data:', err);
             }
         };
 

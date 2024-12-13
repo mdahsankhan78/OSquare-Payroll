@@ -10,11 +10,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import GetEmployees from './../../api/GetEmployees'
 import { Button } from "../ui/button";
+import Spinner from "../ui/Spinner";
 
 export function EmployeeTable() {
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState(null);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
     const navigate = useNavigate();
+    const totalDays = localStorage.getItem('totalDays')
 
     // Handle checkbox toggle
     const handleCheckboxChange = (employee) => {
@@ -30,13 +32,18 @@ export function EmployeeTable() {
 
     const handleFetch = (data) => {
         setEmployees(data);
+        //setting all employees by default checked
+        setSelectedEmployees(data.map(employee => ({
+            id: employee.id,
+            name: employee.name,
+            perDaySalary: (employee.cost / totalDays).toFixed(2), // Calculating perDaySalary
+        })));
     }
 
     const handleNext = () => {
         navigate('/payroll/leaves', { state: selectedEmployees });
     }
     
-
     return (
         <>
             <GetEmployees onDataFetched={handleFetch} />
@@ -45,7 +52,8 @@ export function EmployeeTable() {
                 <Button
                     onClick={handleNext}
                     className='bg-primary text-white px-6 rounded-lg py-2 hover:text-white'
-                    type="submit">
+                    type="submit"
+                    disabled={selectedEmployees.length === 0}>
                     Next
                 </Button>
             </div>
@@ -55,6 +63,8 @@ export function EmployeeTable() {
                         <TableHead></TableHead>
                         <TableHead>EMP ID</TableHead>
                         <TableHead>Name</TableHead>
+                        <TableHead>Basic Salary</TableHead>
+                        <TableHead>Salary per Day</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -69,10 +79,16 @@ export function EmployeeTable() {
                             </TableCell>
                             <TableCell className="font-bold">{employee.id}</TableCell>
                             <TableCell>{employee.name}</TableCell>
+                            <TableCell>{employee.cost}</TableCell>
+                            <TableCell>{(employee.cost / totalDays).toFixed(2)}</TableCell>
                         </TableRow>
 
                     ))
-                        : ''}
+                        :
+                        <TableRow> 
+                            <TableCell colspan='3'><Spinner /></TableCell>
+                        </TableRow>
+                    }
                 </TableBody>
             </Table>
             <style jsx>

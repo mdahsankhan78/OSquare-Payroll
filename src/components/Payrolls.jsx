@@ -12,13 +12,13 @@ const Payrolls = () => {
     return (
         <div className='p-10 '>
             <div className="flex justify-between">
-                <h1 className='text-gray-600 text-3xl '>Payroll History</h1>
+                <h1 className='text-accent text-3xl '>Payroll History</h1>
 
                 <Dialog>
                     <DialogTrigger>
                         <Button className='text-white'>Initiate Payroll</Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className='max-w-lg'>
                         <Form/>
                     </DialogContent>
                 </Dialog>

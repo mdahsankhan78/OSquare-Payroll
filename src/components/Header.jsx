@@ -8,18 +8,28 @@ import {
 }
   from "@/components/ui/dropdown-menu"
 import { Dropdown } from './Header/Dropdown'
+import { Link } from 'react-router-dom'
+import { ThemeToggler } from './ui/ThemeToggler'
+import { useTheme } from './theme-provider'
 
 
 const Header = () => {
+  const { theme } = useTheme();
   return (
     <div className="flex justify-between h-20 py-4 px-8">
-      <div className="flex items-center">
-        <Moon />
+      <div className="flex items-center sm:flex hidden'">
+        <ThemeToggler />
       </div>
-      <img src="/images/osquare-dark.png" alt="" />
+      <Link to={'/'}>
+        {theme === 'dark' ?
+          <img src="/images/osquare-white.png" className='h-12' alt="" />
+          :
+          <img src="/images/osquare-dark.png" className='h-12' alt="" />
+          }
+      </Link>
 
       <div className="flex items-center space-x-3">
-        <div className='text-end'>
+        <div className='text-end sm:block hidden'>
           <h4 className='font-semibold'>Tahir Aziz</h4>
           <p className='text-sm'>Admin</p>
         </div>
@@ -33,7 +43,7 @@ const Header = () => {
 
         </DropdownMenu>
 
-        <Bell />
+        <Bell className='sm:block hidden' />
       </div>
     </div>
   )

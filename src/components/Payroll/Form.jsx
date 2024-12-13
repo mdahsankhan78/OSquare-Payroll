@@ -13,23 +13,28 @@ import { apiUrls } from '../../api/apiurls'
 import axios from 'axios'
 
 const Form = () => {
-    const [data, setData] = useState({ name: '', station: '', from: '', to: '' })
+    const [data, setData] = useState({ name: '', station: '', startDate: '', endDate: '' })
     const navigate = useNavigate();
 
     const handleInput = (e) => {
-        setData({ ...data, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'startDate' || name === 'endDate') {
+            setData({ ...data, [name]: new Date(value).toISOString() });
+        } else {
+            setData({ ...data, [name]: value });
+        }
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await axios.post(apiUrls.payrollMaster,data)
+        await axios.post(apiUrls.payrollMaster, data)
             .then(res => {
-                console.log(res.data.result)
-                if(res)
-                {
+                console.log(res)
+                if (res) {
                     localStorage.setItem('payrollId', res.data.result.id)
-                    localStorage.setItem('startDate', data.from)
-                    localStorage.setItem('endDate', data.to)
-                    
+                    localStorage.setItem('startDate', data.startDate)
+                    localStorage.setItem('endDate', data.endDate)
+
                 }
                 navigate('/payroll', { state: data });
             })
@@ -37,7 +42,9 @@ const Form = () => {
 
 
     };
-    
+
+    console.log(data);
+
     return (
         <form onSubmit={handleSubmit}>
             <DialogHeader>
@@ -70,22 +77,22 @@ const Form = () => {
                     <Label htmlFor="from">From</Label>
                     <Input
                         required
-                        name='from'
+                        name='startDate'
                         onChange={handleInput}
                         type='date'
-                        id="from"
-                        value={data.from}
+                        id="startDate"
+                        value={data.startDate ? new Date(data.startDate).toISOString().split('T')[0] : ''}
                     />
                 </div>
                 <div>
                     <Label htmlFor="to">To</Label>
                     <Input
                         required
-                        name='to'
+                        name='endDate'
                         onChange={handleInput}
                         id='to'
                         type='date'
-                        value={data.to}
+                        value={data.endDate ? new Date(data.endDate).toISOString().split('T')[0] : ''}
                     />
                 </div>
             </div>

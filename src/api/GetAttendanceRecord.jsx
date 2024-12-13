@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { apiUrls } from './apiurls';
 
-const GetAttendanceRecord = ({ onDataFetched, startDate, endDate, employeeIds }) => {
-    const getEmployeeAttendanceUrl = apiUrls.getEmployeeAttendance;
-    const getEmployeeAttendanceUrl2 = apiUrls.getEmployeeAttendance2;
+const GetAttendanceRecord = ({ onDataFetched, payrollMasterId, employeeIds }) => {
+    const getEmployeeAttendanceUrl = apiUrls.getEmployeeReports;
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.post(`${getEmployeeAttendanceUrl}${startDate}${getEmployeeAttendanceUrl2}${endDate}`, employeeIds);
+                const response = await axios.post(`${getEmployeeAttendanceUrl}${payrollMasterId}`, employeeIds);
                 onDataFetched(response.data.result);
+                console.log(response);
+                
 
             } catch (err) {
                 console.error('Error fetching Attendance Record:', err);
@@ -20,7 +21,7 @@ const GetAttendanceRecord = ({ onDataFetched, startDate, endDate, employeeIds })
         fetchData();
 
 
-    }, [getEmployeeAttendanceUrl, getEmployeeAttendanceUrl2]);
+    }, [getEmployeeAttendanceUrl]);
 
     return null;
 };

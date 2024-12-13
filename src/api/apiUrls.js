@@ -21,5 +21,8 @@ export const apiUrls = {
     //Employees
     getEmployeeSalaries : `${baseUrl}Employee`,
 
+    //GetEMployee Reports
+    getEmployeeReports : `${baseUrl}Employee/GetReport?PayRollMasterId=`
+
 
 }
